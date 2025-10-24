@@ -1,0 +1,91 @@
+{% extends "layout.html" %} {% block content %}
+
+<div class="container mt-4">
+  <h3 class="mb-4 text-center">{{ child.child_name }} - Details</h3>
+  <!-- Activities Section -->
+  <div class="card mb-3 shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Activities</h5>
+    </div>
+    <div class="card-body">
+      <ul class="list-group list-group-flush">
+        {% for activity in activities %}
+        <li class="list-group-item">
+          <div class="d-flex align-items-start justify-content-between">
+            <div>
+              <strong>{{ activity.date }}</strong><br />
+              {{ activity.activities_done }} {% if activity.notes %}
+              <p class="text-muted small mb-1"><em>{{ activity.notes }}</em></p>
+              {% endif %}
+            </div>
+            {% if activity.image %}
+            <a href="{{ activity.image.url }}" target="_blank">
+              <img
+                src="{{ activity.image.url }}"
+                alt="Activity Image"
+                class="img-thumbnail"
+                style="width: 80px; height: 80px; object-fit: cover"
+              />
+            </a>
+
+            {% endif %}
+          </div>
+        </li>
+        {% empty %}
+        <li class="list-group-item text-muted">No activities recorded.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Milestones Section -->
+  <div class="card mb-3 shadow-sm">
+    <div class="card-header bg-info text-white">
+      <h5 class="mb-0">Milestones</h5>
+    </div>
+    <div class="card-body">
+      <ul class="list-group list-group-flush">
+        {% for cm in milestones %}
+        <li class="list-group-item">
+          <strong>{{ cm.milestone.category }}</strong> - {{
+          cm.milestone.description }} (<span class="text-primary"
+            >{{ cm.get_status_display }}</span
+          >)
+        </li>
+        {% empty %}
+        <li class="list-group-item text-muted">No milestones recorded.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <!-- AI Suggestions Section -->
+  <div class="card mb-3 shadow-sm">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0">AI Suggestions</h5>
+    </div>
+    <div class="card-body">
+      <ul class="list-group list-group-flush">
+        {% for suggestion in suggestions %}
+        <li class="list-group-item">
+          {{ suggestion.suggestion_text }} <br />
+          <small class="text-muted"
+            >Generated on: {{ suggestion.created_on }}</small
+          >
+        </li>
+        {% empty %}
+        <li class="list-group-item text-muted">No AI suggestions yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <!-- Generate AI Suggestion Button -->
+  <div class="text-center">
+    <a
+      href="{% url 'generate_ai_suggestion_view' child.id %}"
+      class="btn btn-success mt-3"
+    >
+      Generate New AI Suggestion
+    </a>
+  </div>
+</div>
+{% endblock %}

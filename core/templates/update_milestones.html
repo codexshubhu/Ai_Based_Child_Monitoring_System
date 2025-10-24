@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% block title %}Update Milestones{% endblock %}
+
+{% block content %}
+<h3>Update Milestones</h3>
+
+<!-- Child Selection Dropdown -->
+<form method="get" class="mb-4">
+    <div class="mb-3">
+        <label for="child_id">Select Child</label>
+        <select name="child_id" id="child_id" class="form-select" onchange="this.form.submit()">
+            <option value="">-- Select a child --</option>
+            {% for child in children %}
+                <option value="{{ child.id }}" {% if selected_child and child.id == selected_child.id %}selected{% endif %}>
+                    {{ child.child_name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+</form>
+
+{% if selected_child %}
+<h4>{{ selected_child.child_name }} {{ selected_child.date_of_birth }} (Age: {{ age_in_months }} months) </h4>
+
+<form method="post">
+    {% csrf_token %}
+    <!-- Include hidden field for POST -->
+    <input type="hidden" name="child_id" value="{{ selected_child.id }}">
+
+    <h4>Milestones for {{ selected_child.child_name }}</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Typical_age</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for milestone in milestones %}
+            <tr>
+                <td>{{ milestone.milestone.category }}</td>
+                <td>{{ milestone.milestone.description }}</td>
+                <td>{{ milestone.milestone.typical_age }}</td>
+                <td>
+                    <select name="status_{{ milestone.id }}" class="form-select">
+                        <option value="pending" {% if milestone.status == "pending" %}selected{% endif %}>Pending</option>
+                        <option value="completed" {% if milestone.status == "completed" %}selected{% endif %}>Completed</option>
+                        <option value="delayed" {% if milestone.status == "delayed" %}selected{% endif %}>Delayed</option>
+                    </select>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-success">Update Milestones</button>
+</form>
+{% endif %}
+{% endblock %}

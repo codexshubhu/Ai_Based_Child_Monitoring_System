@@ -1,0 +1,1000 @@
+{% extends "layout.html" %}
+{% block title %}Admin Dashboard - Child Monitoring System{% endblock %}
+{% block content %}
+
+<!-- Admin Header -->
+<div class="admin-header mb-5">
+  <div class="row align-items-center">
+    <div class="col-md-8">
+      <div class="admin-welcome">
+        <div class="admin-avatar">
+          <div class="avatar-circle">
+            <i class="bi bi-shield-check-fill"></i>
+          </div>
+          <div class="admin-badge">ADMIN</div>
+        </div>
+        <div class="welcome-content">
+          <h1 class="admin-title">
+            <span class="crown-emoji">👑</span> Welcome, {{ user.username }}
+          </h1>
+          <p class="admin-subtitle">System Administrator Dashboard</p>
+          <div class="admin-stats-quick">
+            <span class="quick-stat">
+              <i class="bi bi-building me-1"></i>{{ pending_daycares|length }} Pending
+            </span>
+            <span class="quick-stat">
+              <i class="bi bi-check-circle me-1"></i>{{ verified_daycares|length }} Verified
+            </span>
+            <span class="quick-stat">
+              <i class="bi bi-people me-1"></i>{{ parents|length }} Parents
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <div class="admin-actions">
+        <button class="admin-btn reports-btn">
+          <i class="bi bi-graph-up"></i>
+          <span>System Reports</span>
+        </button>
+        <a href="{% url 'logout' %}" class="admin-btn logout-btn">
+          <i class="bi bi-box-arrow-right"></i>
+          <span>Logout</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dashboard Overview Cards -->
+<div class="row mb-5">
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="overview-card pending-card">
+      <div class="card-icon">
+        <i class="bi bi-clock-history"></i>
+      </div>
+      <div class="card-content">
+        <h3>{{ pending_daycares|length }}</h3>
+        <p>Pending Approvals</p>
+        <div class="card-trend">
+          <i class="bi bi-exclamation-triangle"></i>
+          <span>Needs Review</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="overview-card verified-card">
+      <div class="card-icon">
+        <i class="bi bi-shield-check"></i>
+      </div>
+      <div class="card-content">
+        <h3>{{ verified_daycares|length }}</h3>
+        <p>Verified Daycares</p>
+        <div class="card-trend">
+          <i class="bi bi-check-circle"></i>
+          <span>Active</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="overview-card parents-card">
+      <div class="card-icon">
+        <i class="bi bi-people-fill"></i>
+      </div>
+      <div class="card-content">
+        <h3>{{ parents|length }}</h3>
+        <p>Registered Parents</p>
+        <div class="card-trend">
+          <i class="bi bi-arrow-up"></i>
+          <span>Growing</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="overview-card children-card">
+      <div class="card-icon">
+        <i class="bi bi-heart-fill"></i>
+      </div>
+      <div class="card-content">
+        <h3>{{ children|length }}</h3>
+        <p>Enrolled Children</p>
+        <div class="card-trend">
+          <i class="bi bi-graph-up"></i>
+          <span>Total</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pending Daycare Approvals -->
+<div class="admin-section mb-5">
+  <div class="section-header">
+    <div class="section-title">
+      <i class="bi bi-clock-history me-2"></i>
+      <h3>Pending Daycare Approvals</h3>
+      <span class="section-count">{{ pending_daycares|length }}</span>
+    </div>
+    <div class="section-actions">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="recent">Recent</button>
+    </div>
+  </div>
+  
+  <div class="data-table-container">
+    {% if pending_daycares %}
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th><i class="bi bi-building me-1"></i>Daycare Name</th>
+            <th><i class="bi bi-telephone me-1"></i>Contact</th>
+            <th><i class="bi bi-file-earmark-text me-1"></i>License</th>
+            <th><i class="bi bi-gear me-1"></i>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for daycare in pending_daycares %}
+          <tr class="table-row">
+            <td>
+              <div class="name-cell">
+                <div class="name-avatar">{{ daycare.name|first }}</div>
+                <div class="name-info">
+                  <strong>{{ daycare.name }}</strong>
+                  <small class="text-muted">Pending Review</small>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="contact-info">
+                <i class="bi bi-phone me-1"></i>{{ daycare.contact_number }}
+              </span>
+            </td>
+            <td>
+              {% if daycare.license_document %}
+                <a href="{{ daycare.license_document.url }}" target="_blank" class="license-btn">
+                  <i class="bi bi-file-earmark-pdf me-1"></i>View License
+                </a>
+              {% else %}
+                <span class="no-file">
+                  <i class="bi bi-x-circle me-1"></i>No File
+                </span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="action-buttons">
+                <a href="{% url 'approve_daycare' daycare.id %}" class="action-btn approve-btn">
+                  <i class="bi bi-check-circle"></i>
+                  <span>Approve</span>
+                </a>
+                <a href="{% url 'reject_daycare' daycare.id %}" class="action-btn reject-btn">
+                  <i class="bi bi-x-circle"></i>
+                  <span>Reject</span>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <i class="bi bi-check-circle-fill"></i>
+      </div>
+      <h4>All Caught Up!</h4>
+      <p>No pending daycare approvals at the moment.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Verified Daycares -->
+<div class="admin-section mb-5">
+  <div class="section-header">
+    <div class="section-title">
+      <i class="bi bi-shield-check me-2"></i>
+      <h3>Verified Daycares</h3>
+      <span class="section-count">{{ verified_daycares|length }}</span>
+    </div>
+    <div class="section-actions">
+      <button class="search-btn">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </div>
+  
+  <div class="data-table-container">
+    {% if verified_daycares %}
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th><i class="bi bi-building me-1"></i>Daycare Name</th>
+            <th><i class="bi bi-telephone me-1"></i>Contact</th>
+            <th><i class="bi bi-file-earmark-text me-1"></i>License</th>
+            <th><i class="bi bi-gear me-1"></i>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for daycare in verified_daycares %}
+          <tr class="table-row">
+            <td>
+              <div class="name-cell">
+                <div class="name-avatar verified">{{ daycare.name|first }}</div>
+                <div class="name-info">
+                  <strong>{{ daycare.name }}</strong>
+                  <small class="text-success">
+                    <i class="bi bi-check-circle me-1"></i>Verified
+                  </small>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="contact-info">
+                <i class="bi bi-phone me-1"></i>{{ daycare.contact_number }}
+              </span>
+            </td>
+            <td>
+              {% if daycare.license_document %}
+                <a href="{{ daycare.license_document.url }}" target="_blank" class="license-btn">
+                  <i class="bi bi-file-earmark-pdf me-1"></i>View License
+                </a>
+              {% else %}
+                <span class="no-file">
+                  <i class="bi bi-x-circle me-1"></i>No File
+                </span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="action-buttons">
+                <a href="{% url 'ban_daycare' daycare.id %}" class="action-btn ban-btn" onclick="return confirm('Are you sure you want to ban {{ daycare.name }}?')">
+                  <i class="bi bi-ban"></i>
+                  <span>Ban</span>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <i class="bi bi-building"></i>
+      </div>
+      <h4>No Verified Daycares</h4>
+      <p>Verified daycares will appear here once approved.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Parents Management -->
+<div class="admin-section mb-5">
+  <div class="section-header">
+    <div class="section-title">
+      <i class="bi bi-people-fill me-2"></i>
+      <h3>Registered Parents</h3>
+      <span class="section-count">{{ parents|length }}</span>
+    </div>
+  </div>
+  
+  <div class="data-table-container">
+    {% if parents %}
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th><i class="bi bi-person-heart me-1"></i>Mother Name</th>
+            <th><i class="bi bi-person me-1"></i>Father Name</th>
+            <th><i class="bi bi-envelope me-1"></i>Email</th>
+            <th><i class="bi bi-telephone me-1"></i>Phone</th>
+            <th><i class="bi bi-gear me-1"></i>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for parent in parents %}
+          <tr class="table-row">
+            <td>
+              <div class="name-cell">
+                <div class="name-avatar parent">{{ parent.mother_name|first }}</div>
+                <strong>{{ parent.mother_name }}</strong>
+              </div>
+            </td>
+            <td><strong>{{ parent.father_name }}</strong></td>
+            <td>
+              <span class="email-info">
+                <i class="bi bi-envelope me-1"></i>{{ parent.email }}
+              </span>
+            </td>
+            <td>
+              <span class="contact-info">
+                <i class="bi bi-phone me-1"></i>{{ parent.phone }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <a href="{% url 'ban_parent' parent.id %}" class="action-btn ban-btn" onclick="return confirm('Are you sure you want to ban this parent?')">
+                  <i class="bi bi-ban"></i>
+                  <span>Ban</span>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <i class="bi bi-people"></i>
+      </div>
+      <h4>No Parents Registered</h4>
+      <p>Parent accounts will appear here once they register.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Children Management -->
+<div class="admin-section mb-5">
+  <div class="section-header">
+    <div class="section-title">
+      <i class="bi bi-heart-fill me-2"></i>
+      <h3>Enrolled Children</h3>
+      <span class="section-count">{{ children|length }}</span>
+    </div>
+  </div>
+  
+  <div class="data-table-container">
+    {% if children %}
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th><i class="bi bi-person-heart me-1"></i>Child Name</th>
+            <th><i class="bi bi-calendar me-1"></i>Date of Birth</th>
+            <th><i class="bi bi-people me-1"></i>Parents</th>
+            <th><i class="bi bi-building me-1"></i>Daycare</th>
+            <th><i class="bi bi-heart-pulse me-1"></i>Medical History</th>
+            <th><i class="bi bi-credit-card me-1"></i>ID</th>
+            <th><i class="bi bi-gear me-1"></i>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for child in children %}
+          <tr class="table-row">
+            <td>
+              <div class="name-cell">
+                <div class="name-avatar child">{{ child.child_name|first }}</div>
+                <strong>{{ child.child_name }}</strong>
+              </div>
+            </td>
+            <td>{{ child.date_of_birth|date:"M d, Y" }}</td>
+            <td>
+              <div class="parent-info">
+                <div><strong>{{ child.parent.mother_name }}</strong></div>
+                <div><strong>{{ child.parent.father_name }}</strong></div>
+              </div>
+            </td>
+            <td>
+              <span class="daycare-info">
+                <i class="bi bi-building me-1"></i>{{ child.daycare.name }}
+              </span>
+            </td>
+            <td>
+              <span class="medical-info" title="{{ child.medical_history }}">
+                {{ child.medical_history|truncatechars:30 }}
+              </span>
+            </td>
+            <td>
+              <span class="id-badge">{{ child.unique_id }}</span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <a href="{% url 'delete_child' child.id %}" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete {{ child.child_name }}? This action cannot be undone.')">
+                  <i class="bi bi-trash"></i>
+                  <span>Delete</span>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <i class="bi bi-heart"></i>
+      </div>
+      <h4>No Children Enrolled</h4>
+      <p>Enrolled children will appear here once parents register them.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+body {
+  box-sizing: border-box;
+}
+
+/* Admin Header */
+.admin-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 25px;
+  padding: 2rem;
+  color: white;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.admin-welcome {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.admin-avatar {
+  position: relative;
+  text-align: center;
+}
+
+.avatar-circle {
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  animation: adminPulse 2s infinite;
+}
+
+@keyframes adminPulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+.avatar-circle i {
+  font-size: 2rem;
+  color: white;
+}
+
+.admin-badge {
+  background: rgba(255, 255, 255, 0.9);
+  color: #667eea;
+  padding: 4px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.admin-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.crown-emoji {
+  display: inline-block;
+  animation: bounce 2s infinite;
+}
+
+.admin-subtitle {
+  opacity: 0.9;
+  margin-bottom: 1rem;
+}
+
+.admin-stats-quick {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.quick-stat {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+}
+
+.admin-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 12px 20px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.admin-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.logout-btn {
+  background: rgba(231, 76, 60, 0.8) !important;
+}
+
+.logout-btn:hover {
+  background: rgba(231, 76, 60, 1) !important;
+}
+
+/* Overview Cards */
+.overview-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all 0.3s ease;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.overview-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.pending-card::before { background: linear-gradient(45deg, #ffeaa7, #fab1a0); }
+.verified-card::before { background: linear-gradient(45deg, #00b894, #00a085); }
+.parents-card::before { background: linear-gradient(45deg, #667eea, #764ba2); }
+.children-card::before { background: linear-gradient(45deg, #ff6b6b, #ee5a52); }
+
+.overview-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+.card-icon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(45deg, #a8edea, #fed6e3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.card-icon i {
+  font-size: 1.5rem;
+  color: #2d3436;
+}
+
+.card-content h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2d3436;
+  margin-bottom: 0.5rem;
+}
+
+.card-content p {
+  color: #636e72;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.card-trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.pending-card .card-trend { color: #fab1a0; }
+.verified-card .card-trend { color: #00b894; }
+.parents-card .card-trend { color: #667eea; }
+.children-card .card-trend { color: #ff6b6b; }
+
+/* Admin Sections */
+.admin-section {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 25px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  overflow: hidden;
+}
+
+.section-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-title h3 {
+  color: #2d3436;
+  font-weight: 700;
+  margin: 0;
+}
+
+.section-count {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.section-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filter-btn, .search-btn {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  border: none;
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-btn.active, .filter-btn:hover, .search-btn:hover {
+  background: #667eea;
+  color: white;
+}
+
+/* Data Tables */
+.data-table-container {
+  padding: 2rem;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.admin-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.admin-table th {
+  padding: 1rem;
+  font-weight: 600;
+  text-align: left;
+  border: none;
+}
+
+.admin-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f3f4;
+  vertical-align: middle;
+}
+
+.table-row {
+  transition: all 0.3s ease;
+}
+
+.table-row:hover {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+/* Name Cells */
+.name-cell {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.name-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(45deg, #a8edea, #fed6e3);
+  color: #2d3436;
+}
+
+.name-avatar.verified {
+  background: linear-gradient(45deg, #00b894, #00a085);
+  color: white;
+}
+
+.name-avatar.parent {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: white;
+}
+
+.name-avatar.child {
+  background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+  color: white;
+}
+
+.name-info small {
+  display: block;
+  margin-top: 2px;
+}
+
+/* Contact and Info Styles */
+.contact-info, .email-info {
+  color: #636e72;
+  font-weight: 500;
+}
+
+.license-btn {
+  background: rgba(52, 152, 219, 0.1);
+  color: #3498db;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.license-btn:hover {
+  background: #3498db;
+  color: white;
+}
+
+.no-file {
+  color: #e74c3c;
+  font-style: italic;
+}
+
+.parent-info div {
+  margin-bottom: 2px;
+}
+
+.daycare-info {
+  color: #636e72;
+  font-weight: 500;
+}
+
+.medical-info {
+  color: #636e72;
+  font-size: 0.9rem;
+}
+
+.id-badge {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 6px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.approve-btn {
+  background: rgba(0, 184, 148, 0.1);
+  color: #00b894;
+}
+
+.approve-btn:hover {
+  background: #00b894;
+  color: white;
+}
+
+.reject-btn, .ban-btn, .delete-btn {
+  background: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+}
+
+.reject-btn:hover, .ban-btn:hover, .delete-btn:hover {
+  background: #e74c3c;
+  color: white;
+}
+
+/* Empty States */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(45deg, #a8edea, #fed6e3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.empty-icon i {
+  font-size: 2rem;
+  color: #2d3436;
+}
+
+.empty-state h4 {
+  color: #2d3436;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  color: #636e72;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-welcome {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .admin-title {
+    font-size: 1.8rem;
+  }
+  
+  .admin-stats-quick {
+    justify-content: center;
+  }
+  
+  .admin-actions {
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .admin-table {
+    font-size: 0.9rem;
+  }
+  
+  .admin-table th,
+  .admin-table td {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .name-cell {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .action-buttons {
+    justify-content: center;
+  }
+  
+  .data-table-container {
+    padding: 1rem;
+  }
+}
+
+/* Table Responsive Improvements */
+@media (max-width: 992px) {
+  .table-responsive {
+    border-radius: 15px;
+  }
+  
+  .admin-table {
+    min-width: 800px;
+  }
+}
+</style>
+
+<script>
+// Filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  
+  filterButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      // Remove active class from all buttons
+      filterButtons.forEach(btn => btn.classList.remove('active'));
+      // Add active class to clicked button
+      this.classList.add('active');
+      
+      // Here you would implement actual filtering logic
+      console.log('Filter:', this.getAttribute('data-filter'));
+    });
+  });
+  
+  // Search functionality
+  const searchButtons = document.querySelectorAll('.search-btn');
+  searchButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      // Implement search functionality
+      alert('Search functionality would be implemented here');
+    });
+  });
+  
+  // Add confirmation dialogs for destructive actions
+  const destructiveActions = document.querySelectorAll('.ban-btn, .reject-btn, .delete-btn');
+  destructiveActions.forEach(action => {
+    action.addEventListener('click', function(e) {
+      if (!this.onclick) { // Only if no onclick already defined
+        e.preventDefault();
+        const actionType = this.classList.contains('ban-btn') ? 'ban' : 
+                          this.classList.contains('reject-btn') ? 'reject' : 'delete';
+        
+        if (confirm(`Are you sure you want to ${actionType} this item? This action may not be reversible.`)) {
+          window.location.href = this.href;
+        }
+      }
+    });
+  });
+});
+</script>
+
+{% endblock %}

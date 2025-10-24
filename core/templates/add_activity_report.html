@@ -1,0 +1,802 @@
+{% extends "layout.html" %} {% block title %}Add Activity Report - Child
+Monitoring System{% endblock %} {% block content %}
+
+<!-- Page Header -->
+<div class="page-header mb-5">
+  <div class="row align-items-center">
+    <div class="col-md-8">
+      <h1 class="page-title">
+        <i class="bi bi-journal-plus me-3"></i>Add Activity Report
+      </h1>
+      <p class="page-subtitle">
+        Record daily activities, progress, and observations for children in your
+        care
+      </p>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <div class="page-actions">
+        <button class="btn btn-outline-primary" onclick="history.back()">
+          <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Activity Report Form -->
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="report-form-card">
+      <div class="form-header">
+        <div class="form-icon">
+          <i class="bi bi-clipboard-heart"></i>
+        </div>
+        <div class="form-title-section">
+          <h3>Daily Activity Report</h3>
+          <p class="form-subtitle">
+            Document today's activities and observations
+          </p>
+        </div>
+        <div class="form-date">
+          <div class="date-display">
+            <span class="date-day" id="current-day"></span>
+            <span class="date-month" id="current-date"></span>
+          </div>
+        </div>
+      </div>
+
+      <form method="post" enctype="multipart/form-data" class="activity-form" id="activityForm">
+
+        {% csrf_token %}
+
+        <!-- Child Selection -->
+        <div class="form-section">
+          <div class="section-header">
+            <i class="bi bi-person-heart section-icon"></i>
+            <h4>Select Child</h4>
+          </div>
+          <div class="form-group">
+            <label for="{{ form.child.id_for_label }}" class="form-label">
+              <i class="bi bi-people-fill me-2"></i>Child Name
+            </label>
+            {{ form.child }}
+            <div class="form-help">
+              <i class="bi bi-info-circle me-1"></i>
+              Choose the child for this activity report
+            </div>
+          </div>
+        </div>
+
+        <!-- Activities Section -->
+        <div class="form-section">
+          <div class="section-header">
+            <i class="bi bi-activity section-icon"></i>
+            <h4>Activities & Progress</h4>
+          </div>
+          <div class="form-group">
+            <label
+              for="{{ form.activities_done.id_for_label }}"
+              class="form-label"
+            >
+              <i class="bi bi-list-check me-2"></i>Activities Completed Today
+            </label>
+            {{ form.activities_done }}
+            <div class="form-help">
+              <i class="bi bi-lightbulb me-1"></i>
+              Describe the activities, learning experiences, meals, naps, and
+              milestones achieved
+            </div>
+          </div>
+
+          <!-- Quick Activity Tags -->
+          <div class="activity-tags">
+            <h6 class="tags-title">Quick Add Common Activities:</h6>
+            <div class="tags-container">
+              <button
+                type="button"
+                class="activity-tag"
+                data-activity="🎨 Arts & Crafts"
+              >
+                <i class="bi bi-palette-fill"></i> Arts & Crafts
+              </button>
+              <button
+                type="button"
+                class="activity-tag"
+                data-activity="📚 Story Time"
+              >
+                <i class="bi bi-book-fill"></i> Story Time
+              </button>
+              <button
+                type="button"
+                class="activity-tag"
+                data-activity="🏃 Outdoor Play"
+              >
+                <i class="bi bi-tree-fill"></i> Outdoor Play
+              </button>
+              <button
+                type="button"
+                class="activity-tag"
+                data-activity="🎵 Music & Dance"
+              >
+                <i class="bi bi-music-note-beamed"></i> Music & Dance
+              </button>
+              <button
+                type="button"
+                class="activity-tag"
+                data-activity="🍎 Snack Time"
+              >
+                <i class="bi bi-apple"></i> Snack Time
+              </button>
+              <button
+                type="button"
+                class="activity-tag"
+                data-activity="😴 Nap Time"
+              >
+                <i class="bi bi-moon-stars-fill"></i> Nap Time
+              </button>
+              <button
+                type="button"
+                class="activity-tag"
+                data-activity="🧩 Learning Games"
+              >
+                <i class="bi bi-puzzle-fill"></i> Learning Games
+              </button>
+              <button
+                type="button"
+                class="activity-tag"
+                data-activity="🤝 Social Play"
+              >
+                <i class="bi bi-people-fill"></i> Social Play
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Image Upload Section -->
+        <div class="form-section">
+          <div class="section-header">
+            <i class="bi bi-image section-icon"></i>
+            <h4>Upload Activity Images</h4>
+          </div>
+          <div class="form-group">
+            <label for="id_image" class="form-label">
+              <i class="bi bi-camera-fill me-2"></i>Upload Photos (Optional)
+            </label>
+            <input
+              type="file"
+              name="image"
+              id="id_image"
+              class="form-control"
+              accept="image/*"
+            />
+            <div class="form-help">
+              <i class="bi bi-info-circle me-1"></i>
+              You can upload a photo showing the child’s activity or progress
+              today.
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="form-section">
+          <div class="section-header">
+            <i class="bi bi-chat-quote section-icon"></i>
+            <h4>Additional Notes & Observations</h4>
+          </div>
+          <div class="form-group">
+            <label for="{{ form.notes.id_for_label }}" class="form-label">
+              <i class="bi bi-journal-text me-2"></i>Special Notes, Behavior, or
+              Concerns
+            </label>
+            {{ form.notes }}
+            <div class="form-help">
+              <i class="bi bi-heart me-1"></i>
+              Share any special observations, behavioral notes, or important
+              information for parents
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-lg me-3"
+            onclick="resetForm()"
+          >
+            <i class="bi bi-arrow-clockwise me-2"></i>Reset Form
+          </button>
+          <button type="submit" class="btn btn-primary btn-lg submit-btn">
+            <i class="bi bi-check-circle-fill me-2"></i>Submit Activity Report
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal (Hidden by default) -->
+<div class="success-overlay" id="successOverlay" style="display: none">
+  <div class="success-modal">
+    <div class="success-icon">
+      <i class="bi bi-check-circle-fill"></i>
+    </div>
+    <h3>Report Submitted Successfully!</h3>
+    <p>The activity report has been saved and parents will be notified.</p>
+    <div class="success-actions">
+      <button class="btn btn-primary" onclick="hideSuccessModal()">
+        Add Another Report
+      </button>
+      <button
+        class="btn btn-outline-primary"
+        onclick="window.location.href='{% url 'daycare_dashboard' %}'"
+      >
+        Back to Dashboard
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  body {
+    box-sizing: border-box;
+  }
+
+  /* Page Header */
+  .page-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .page-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #2d3436;
+    margin-bottom: 0.5rem;
+  }
+
+  .page-subtitle {
+    color: #636e72;
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  /* Report Form Card */
+  .report-form-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+  }
+
+  .form-header {
+    background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    color: white;
+  }
+
+  .form-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .form-icon i {
+    font-size: 2rem;
+    color: white;
+  }
+
+  .form-title-section {
+    flex: 1;
+  }
+
+  .form-title-section h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: white;
+  }
+
+  .form-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+  }
+
+  .form-date {
+    text-align: center;
+  }
+
+  .date-display {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .date-day {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .date-month {
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+
+  /* Form Sections */
+  .activity-form {
+    padding: 2rem;
+  }
+
+  .form-section {
+    margin-bottom: 3rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #f1f3f4;
+  }
+
+  .section-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(45deg, #a8edea, #fed6e3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2d3436;
+    font-size: 1.2rem;
+  }
+
+  .section-header h4 {
+    color: #2d3436;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  /* Form Groups */
+  .form-group {
+    margin-bottom: 2rem;
+  }
+
+  .form-label {
+    display: block;
+    font-weight: 600;
+    color: #2d3436;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+
+  .form-control,
+  select,
+  textarea {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 15px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  .form-control:focus,
+  select:focus,
+  textarea:focus {
+    border-color: #4ecdc4;
+    box-shadow: 0 0 0 0.2rem rgba(78, 205, 196, 0.25);
+    outline: none;
+    background: white;
+  }
+
+  textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+
+  .form-help {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #636e72;
+    font-style: italic;
+  }
+
+  /* Activity Tags */
+  .activity-tags {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(78, 205, 196, 0.05);
+    border-radius: 20px;
+    border: 1px solid rgba(78, 205, 196, 0.1);
+  }
+
+  .tags-title {
+    color: #2d3436;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .activity-tag {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #4ecdc4;
+    color: #4ecdc4;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .activity-tag:hover {
+    background: #4ecdc4;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+  }
+
+  .activity-tag.selected {
+    background: #4ecdc4;
+    color: white;
+  }
+
+  /* Form Actions */
+  .form-actions {
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 2px solid #f1f3f4;
+  }
+
+  .submit-btn {
+    background: linear-gradient(45deg, #4ecdc4, #44a08d);
+    border: none;
+    border-radius: 20px;
+    padding: 15px 40px;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+  }
+
+  /* Success Modal */
+  .success-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+  }
+
+  .success-modal {
+    background: white;
+    border-radius: 25px;
+    padding: 3rem;
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease;
+  }
+
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(45deg, #00b894, #00a085);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    animation: successPulse 1s ease;
+  }
+
+  @keyframes successPulse {
+    0% {
+      transform: scale(0);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .success-icon i {
+    font-size: 2rem;
+    color: white;
+  }
+
+  .success-modal h3 {
+    color: #2d3436;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .success-modal p {
+    color: #636e72;
+    margin-bottom: 2rem;
+  }
+
+  .success-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .page-header {
+      text-align: center;
+    }
+
+    .page-title {
+      font-size: 1.8rem;
+    }
+
+    .form-header {
+      flex-direction: column;
+      text-align: center;
+      gap: 1rem;
+    }
+
+    .date-display {
+      margin-top: 1rem;
+    }
+
+    .section-header {
+      flex-direction: column;
+      text-align: center;
+      gap: 0.5rem;
+    }
+
+    .tags-container {
+      justify-content: center;
+    }
+
+    .form-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .success-actions {
+      flex-direction: column;
+    }
+  }
+
+  /* Form validation styles */
+  .form-control.is-invalid,
+  select.is-invalid,
+  textarea.is-invalid {
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+  }
+
+  .invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: #e74c3c;
+  }
+</style>
+
+<script>
+  // Update current date
+  function updateDate() {
+    const now = new Date();
+    const dayNames = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    document.getElementById("current-day").textContent = dayNames[now.getDay()];
+    document.getElementById("current-date").textContent = `${
+      monthNames[now.getMonth()]
+    } ${now.getDate()}, ${now.getFullYear()}`;
+  }
+
+  // Activity tag functionality
+  function initializeActivityTags() {
+    const activityTags = document.querySelectorAll(".activity-tag");
+    const activitiesTextarea = document.querySelector(
+      'textarea[name="activities_done"]'
+    );
+
+    activityTags.forEach((tag) => {
+      tag.addEventListener("click", function (e) {
+        e.preventDefault();
+        const activity = this.getAttribute("data-activity");
+
+        // Toggle selected state
+        this.classList.toggle("selected");
+
+        // Add to textarea
+        if (this.classList.contains("selected")) {
+          const currentText = activitiesTextarea.value;
+          const newText = currentText
+            ? currentText + "\n• " + activity
+            : "• " + activity;
+          activitiesTextarea.value = newText;
+        } else {
+          // Remove from textarea
+          const currentText = activitiesTextarea.value;
+          const activityLine = "• " + activity;
+          const newText = currentText
+            .replace(activityLine, "")
+            .replace(/\n\n/g, "\n")
+            .trim();
+          activitiesTextarea.value = newText;
+        }
+
+        // Trigger change event
+        activitiesTextarea.dispatchEvent(new Event("change"));
+      });
+    });
+  }
+
+  // Reset form function
+  function resetForm() {
+    if (
+      confirm(
+        "Are you sure you want to reset the form? All entered data will be lost."
+      )
+    ) {
+      document.getElementById("activityForm").reset();
+      document.querySelectorAll(".activity-tag").forEach((tag) => {
+        tag.classList.remove("selected");
+      });
+    }
+  }
+
+  // Success modal functions
+  function showSuccessModal() {
+    document.getElementById("successOverlay").style.display = "flex";
+  }
+
+  function hideSuccessModal() {
+    document.getElementById("successOverlay").style.display = "none";
+    // Reset form after hiding modal
+    document.getElementById("activityForm").reset();
+    document.querySelectorAll(".activity-tag").forEach((tag) => {
+      tag.classList.remove("selected");
+    });
+  }
+
+  // Form submission handling
+  function handleFormSubmission() {
+    const form = document.getElementById("activityForm");
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const submitBtn = document.querySelector(".submit-btn");
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML =
+        '<i class="bi bi-hourglass-split me-2"></i>Submitting...';
+      submitBtn.disabled = true;
+
+      const formData = new FormData(form);
+
+      const response = await fetch("", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      });
+
+      if (response.ok) {
+        showSuccessModal();
+        form.reset();
+      } else {
+        alert("Something went wrong while submitting!");
+      }
+
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
+    });
+  }
+
+  // Initialize everything
+  document.addEventListener("DOMContentLoaded", function () {
+    updateDate();
+    initializeActivityTags();
+    handleFormSubmission();
+
+    // Add focus effects to form elements
+    const formElements = document.querySelectorAll(
+      ".form-control, select, textarea"
+    );
+    formElements.forEach((element) => {
+      element.addEventListener("focus", function () {
+        this.parentElement.classList.add("focused");
+      });
+
+      element.addEventListener("blur", function () {
+        this.parentElement.classList.remove("focused");
+      });
+    });
+  });
+
+  // Close modal when clicking outside
+  document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("success-overlay")) {
+      hideSuccessModal();
+    }
+  });
+</script>
+
+{% endblock %}

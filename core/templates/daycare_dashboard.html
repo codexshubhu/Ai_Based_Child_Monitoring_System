@@ -1,0 +1,964 @@
+{% extends "layout.html" %} {% block title %}Daycare Dashboard - Child
+Monitoring System{% endblock %} {% block content %}
+
+<!-- Welcome Header -->
+<div class="dashboard-header mb-5">
+  <div class="row align-items-center">
+    <div class="col-md-8">
+      <div class="welcome-section">
+        <div class="daycare-avatar">
+          <div class="avatar-circle">
+            <i class="bi bi-house-heart-fill"></i>
+          </div>
+          <div class="status-indicator online"></div>
+        </div>
+        <div class="welcome-content">
+           <h1 class="welcome-title mb-2">
+        <span class="wave-emoji">👋</span> Welcome back, {{ user.username }}!
+      </h1>
+          <div class="role-info">
+            <span class="role-badge daycare">
+              <i class="bi bi-building me-2"></i>{{ user.profile.role|title }}
+              Dashboard
+            </span>
+            <span class="time-badge">
+              <i class="bi bi-clock me-1"></i><span id="current-time"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <div class="header-actions">
+        {% comment %}
+        <button class="action-btn notification-btn">
+          <i class="bi bi-bell-fill"></i>
+          <span class="notification-count">3</span>
+        </button>
+        {% endcomment %}
+        <a href="{% url 'logout' %}" class="action-btn logout-btn">
+          <i class="bi bi-box-arrow-right"></i>
+          <span>Logout</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notifications Section -->
+<div class="card mt-4 shadow-sm">
+  <div class="card-header bg-info text-white">
+    <h5 class="mb-0"><i class="bi bi-bell-fill me-2"></i>Notifications</h5>
+  </div>
+  <div class="card-body">
+    {% if notifications %}
+    <ul class="list-group list-group-flush">
+      {% for notif in notifications %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <strong>{{ notif.title }}</strong> - {{ notif.message }}
+          <br>
+          <small class="text-muted">{{ notif.created_on|date:"M d, Y H:i" }}</small>
+        </div>
+        {% if not notif.is_read %}
+        <span class="badge bg-warning text-dark">New</span>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted mb-0">No notifications at the moment.</p>
+    {% endif %}
+  </div>
+</div>
+
+
+<!-- Dashboard Stats -->
+<div class="row mb-5">
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="stat-card children-stat">
+      <div class="stat-icon">
+        <i class="bi bi-people-fill"></i>
+      </div>
+      <div class="stat-content">
+        <h3 class="stat-number">{{ enrolled_count|default:"0" }}</h3>
+        <p class="stat-label">Enrolled Children</p>
+        <div class="stat-trend">
+          <i class="bi bi-arrow-up-short"></i>
+          <span>+2 this week</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="stat-card requests-stat">
+      <div class="stat-icon">
+        <i class="bi bi-envelope-heart-fill"></i>
+      </div>
+      <div class="stat-content">
+        <h3 class="stat-number">{{ pending_requests|default:"0" }}</h3>
+        <p class="stat-label">Pending Requests</p>
+        <div class="stat-trend">
+          <i class="bi bi-clock-fill"></i>
+          <span>Needs attention</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="stat-card activities-stat">
+      <div class="stat-icon">
+        <i class="bi bi-activity"></i>
+      </div>
+      <div class="stat-content">
+        <h3 class="stat-number">{{ todays_activities|default:"0" }}</h3>
+        <p class="stat-label">Today's Activities</p>
+        <div class="stat-trend">
+          <i class="bi bi-calendar-check"></i>
+          <span>Scheduled</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="stat-card reports-stat">
+      <div class="stat-icon">
+        <i class="bi bi-clipboard-data-fill"></i>
+      </div>
+      <div class="stat-content">
+        <h3 class="stat-number">{{ total_reports|default:"0" }}</h3>
+        <p class="stat-label">Total Reports</p>
+        <div class="stat-trend">
+          <i class="bi bi-graph-up"></i>
+          <span>This month</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions Section -->
+<div class="row mb-5">
+  <div class="col-12">
+    <div class="quick-actions-section">
+      <div class="section-header">
+        <h3><i class="bi bi-lightning-charge-fill me-2"></i>Quick Actions</h3>
+        <p class="section-subtitle">
+          Manage your daycare operations efficiently
+        </p>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="action-card milestone-action">
+            <div class="card-icon">
+              <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <div class="card-content">
+              <h4>Update Milestones</h4>
+              <p>
+                Track and update children’s developmental milestones and growth
+                progress
+              </p>
+              <div class="card-features">
+                <span class="feature-tag"
+                  ><i class="bi bi-journal-plus me-1"></i>Record Progress</span
+                >
+                <span class="feature-tag"
+                  ><i class="bi bi-bar-chart-line me-1"></i>View Charts</span
+                >
+              </div>
+            </div>
+            <a href="{% url 'update_milestones' %}" class="card-action-btn">
+              <span>Update Now</span>
+              <i class="bi bi-arrow-right-circle-fill"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="action-card children-action">
+            <div class="card-icon">
+              <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="card-content">
+              <h4>Enrolled Children</h4>
+              <p>
+                View and manage all children currently enrolled in your daycare
+              </p>
+              <div class="card-features">
+                <span class="feature-tag"
+                  ><i class="bi bi-eye-fill me-1"></i>View Profiles</span
+                >
+                <span class="feature-tag"
+                  ><i class="bi bi-pencil-square me-1"></i>Edit Info</span
+                >
+              </div>
+            </div>
+            <a href="{% url 'enrolled_children' %}" class="card-action-btn">
+              <span>Manage Children</span>
+              <i class="bi bi-arrow-right-circle-fill"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="action-card activity-action">
+            <div class="card-icon">
+              <i class="bi bi-plus-circle-fill"></i>
+            </div>
+            <div class="card-content">
+              <h4>Add Activity Report</h4>
+              <p>
+                Record daily activities, meals, naps, and developmental progress
+              </p>
+              <div class="card-features">
+                <span class="feature-tag"
+                  ><i class="bi bi-journal-plus me-1"></i>Quick Entry</span
+                >
+                <span class="feature-tag"
+                  ><i class="bi bi-camera-fill me-1"></i>Add Photos</span
+                >
+              </div>
+            </div>
+            <a href="{% url 'add_activity_report' %}" class="card-action-btn">
+              <span>Create Report</span>
+              <i class="bi bi-arrow-right-circle-fill"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="action-card requests-action">
+            <div class="card-icon">
+              <i class="bi bi-envelope-open-heart-fill"></i>
+            </div>
+            <div class="card-content">
+              <h4>Enrollment Requests</h4>
+              <p>Review and process new enrollment applications from parents</p>
+              <div class="card-features">
+                <span class="feature-tag"
+                  ><i class="bi bi-check-circle me-1"></i>Approve</span
+                >
+                <span class="feature-tag"
+                  ><i class="bi bi-chat-dots me-1"></i>Message</span
+                >
+              </div>
+            </div>
+            <a href="{% url 'enrollment_requests' %}" class="card-action-btn">
+              <span>Review Requests</span>
+              <i class="bi bi-arrow-right-circle-fill"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Daily Inspiration & Recent Activity -->
+<div class="row">
+  <div class="col-lg-6 mb-4">
+    <div class="inspiration-card">
+      <div class="inspiration-header">
+        <div class="inspiration-icon">
+          <i class="bi bi-lightbulb-fill"></i>
+        </div>
+        <h4>💡 Daily Inspiration</h4>
+      </div>
+      <div class="inspiration-content">
+        <blockquote class="inspiration-quote">
+          "{{ thought|default:"Every child is a different kind of flower, and
+          all together make this world a beautiful garden." }}"
+        </blockquote>
+        <div class="inspiration-footer">
+          <span class="inspiration-category">Childcare Wisdom</span>
+          <button class="refresh-btn" onclick="refreshQuote()">
+            <i class="bi bi-arrow-clockwise"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6 mb-4">
+    <div class="activity-feed-card">
+      <div class="feed-header">
+        <h4><i class="bi bi-clock-history me-2"></i>Recent Activity</h4>
+        <small class="text-muted">Latest updates from your daycare</small>
+      </div>
+      <div class="activity-feed">
+        <div class="feed-item">
+          <div class="feed-icon">
+            <i class="bi bi-person-plus-fill"></i>
+          </div>
+          <div class="feed-content">
+            <p class="feed-text">New enrollment request received</p>
+            <small class="feed-time">2 hours ago</small>
+          </div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-icon">
+            <i class="bi bi-journal-check"></i>
+          </div>
+          <div class="feed-content">
+            <p class="feed-text">Activity report submitted for Emma</p>
+            <small class="feed-time">4 hours ago</small>
+          </div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-icon">
+            <i class="bi bi-calendar-event"></i>
+          </div>
+          <div class="feed-content">
+            <p class="feed-text">Weekly schedule updated</p>
+            <small class="feed-time">Yesterday</small>
+          </div>
+        </div>
+      </div>
+      <div class="feed-footer">
+        <button class="view-all-btn">
+          <span>View All Activity</span>
+          <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  body {
+    box-sizing: border-box;
+  }
+
+  /* Dashboard Header */
+  .dashboard-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .welcome-section {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .daycare-avatar {
+    position: relative;
+  }
+
+  .avatar-circle {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(45deg, #4ecdc4, #44a08d);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(78, 205, 196, 0.3);
+    animation: pulse-daycare 2s infinite;
+  }
+
+  @keyframes pulse-daycare {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .avatar-circle i {
+    font-size: 2rem;
+    color: white;
+  }
+
+  .status-indicator {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 3px solid white;
+  }
+
+  .status-indicator.online {
+    background: #00b894;
+    animation: pulse-green 2s infinite;
+  }
+
+  .welcome-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, #4ecdc4, #44a08d, #667eea);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+
+  .wave-emoji {
+    display: inline-block;
+    animation: wave 2s ease-in-out infinite;
+  }
+
+  .role-info {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .role-badge.daycare {
+    background: linear-gradient(45deg, #4ecdc4, #44a08d);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+  }
+
+  .time-badge {
+    background: rgba(255, 255, 255, 0.9);
+    color: #2d3436;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .action-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 15px;
+    padding: 12px 16px;
+    font-weight: 600;
+    color: #2d3436;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .action-btn:hover {
+    background: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    color: #2d3436;
+  }
+
+  .notification-btn {
+    position: relative;
+  }
+
+  .notification-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logout-btn {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a52) !important;
+    color: white !important;
+  }
+
+  .logout-btn:hover {
+    color: white !important;
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4) !important;
+  }
+
+  /* Stats Cards */
+  .stat-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+  }
+
+  .children-stat::before {
+    background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  }
+
+  .requests-stat::before {
+    background: linear-gradient(45deg, #ffeaa7, #fab1a0);
+  }
+
+  .activities-stat::before {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+  }
+
+  .reports-stat::before {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+  }
+
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .stat-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(45deg, #a8edea, #fed6e3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .stat-icon i {
+    font-size: 1.5rem;
+    color: #2d3436;
+  }
+
+  .stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2d3436;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    color: #636e72;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #00b894;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  /* Quick Actions Section */
+  .quick-actions-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .section-header h3 {
+    color: #2d3436;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-subtitle {
+    color: #636e72;
+    margin: 0;
+  }
+
+  /* Action Cards */
+  .action-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .action-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+  }
+
+  .children-action::before {
+    background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  }
+
+  .activity-action::before {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+  }
+
+  .requests-action::before {
+    background: linear-gradient(45deg, #ffeaa7, #fab1a0);
+  }
+
+  .action-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  }
+
+  .card-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(45deg, #a8edea, #fed6e3);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .card-icon i {
+    font-size: 2rem;
+    color: #2d3436;
+  }
+
+  .card-content h4 {
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #2d3436;
+  }
+
+  .card-content p {
+    color: #636e72;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  .card-features {
+    margin-bottom: 1.5rem;
+  }
+
+  .feature-tag {
+    display: inline-block;
+    background: rgba(78, 205, 196, 0.1);
+    color: #4ecdc4;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin: 2px;
+  }
+
+  .card-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(45deg, #4ecdc4, #44a08d);
+    color: white;
+    text-decoration: none;
+    padding: 12px 20px;
+    border-radius: 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .card-action-btn:hover {
+    color: white;
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
+  }
+
+  .activity-action .card-action-btn {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+  }
+
+  .requests-action .card-action-btn {
+    background: linear-gradient(45deg, #ffeaa7, #fab1a0);
+    color: #2d3436;
+  }
+
+  /* Inspiration Card */
+  .inspiration-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    height: 100%;
+  }
+
+  .inspiration-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .inspiration-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(45deg, #ffeaa7, #fab1a0);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .inspiration-icon i {
+    font-size: 1.2rem;
+    color: #2d3436;
+  }
+
+  .inspiration-header h4 {
+    color: #2d3436;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .inspiration-quote {
+    font-size: 1.1rem;
+    font-style: italic;
+    color: #2d3436;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    padding-left: 1rem;
+    border-left: 4px solid #ffeaa7;
+  }
+
+  .inspiration-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .inspiration-category {
+    background: rgba(255, 234, 167, 0.3);
+    color: #fab1a0;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .refresh-btn {
+    background: none;
+    border: none;
+    color: #fab1a0;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .refresh-btn:hover {
+    transform: rotate(180deg);
+    color: #e17055;
+  }
+
+  /* Activity Feed Card */
+  .activity-feed-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    height: 100%;
+  }
+
+  .feed-header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .feed-header h4 {
+    color: #2d3436;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .activity-feed {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .feed-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 15px;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .feed-item:hover {
+    background: rgba(78, 205, 196, 0.05);
+  }
+
+  .feed-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(45deg, #a8edea, #fed6e3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .feed-icon i {
+    color: #2d3436;
+  }
+
+  .feed-content {
+    flex: 1;
+  }
+
+  .feed-text {
+    margin: 0;
+    font-weight: 500;
+    color: #2d3436;
+  }
+
+  .feed-time {
+    color: #636e72;
+  }
+
+  .feed-footer {
+    margin-top: 1rem;
+    text-align: center;
+  }
+
+  .view-all-btn {
+    background: linear-gradient(45deg, #4ecdc4, #44a08d);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 auto;
+    cursor: pointer;
+  }
+  .milestone-action::before {
+  background: linear-gradient(45deg, #ffa502, #ff7f50);
+}
+
+.milestone-action .card-action-btn {
+  background: linear-gradient(45deg, #ffa502, #ff7f50);
+}
+
+
+  .view-all-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .welcome-section {
+      flex-direction: column;
+      text-align: center;
+      gap: 1rem;
+    }
+
+    .welcome-title {
+      font-size: 1.8rem;
+    }
+
+    .header-actions {
+      justify-content: center;
+      margin-top: 1rem;
+    }
+
+    .role-info {
+      justify-content: center;
+    }
+
+    .dashboard-header {
+      text-align: center;
+    }
+
+    .action-card {
+      margin-bottom: 1.5rem;
+    }
+  }
+</style>
+
+<script>
+  // Update current time
+  function updateTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+    document.getElementById("current-time").textContent = timeString;
+  }
+
+  // Refresh quote function
+  function refreshQuote() {
+    const quotes = [
+      "Every child is a different kind of flower, and all together make this world a beautiful garden.",
+      "Children are not things to be molded, but people to be unfolded.",
+      "The days are long, but the years are short. Cherish every moment.",
+      "It takes a village to raise a child, and you are an important part of that village.",
+      "Children learn more from what you are than what you teach.",
+    ];
+
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    document.querySelector(
+      ".inspiration-quote"
+    ).textContent = `"${randomQuote}"`;
+  }
+
+  // Initialize
+  document.addEventListener("DOMContentLoaded", function () {
+    updateTime();
+    setInterval(updateTime, 60000); // Update every minute
+  });
+</script>
+
+{% endblock %}

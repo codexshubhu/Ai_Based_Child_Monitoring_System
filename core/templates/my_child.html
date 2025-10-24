@@ -1,0 +1,897 @@
+{% extends "layout.html" %} {% block title %}My Children - Child Monitoring
+System{% endblock %} {% block content %}
+
+<!-- Page Header -->
+<div class="page-header mb-5">
+  <div class="row align-items-center">
+    <div class="col-md-8">
+      <h1 class="page-title">
+        <i class="bi bi-people-fill me-3"></i>My Children
+        <span class="child-count-badge">{{ child_data|length }}</span>
+      </h1>
+      <p class="page-subtitle">
+        Monitor your children's progress, activities, and milestones
+      </p>
+    </div>
+  </div>
+</div>
+
+{% for item in child_data %}
+<div class="child-profile-card mb-5">
+  <!-- Child Header -->
+  <div class="child-header">
+    <div class="child-avatar">
+      <div class="avatar-circle">
+        <i class="bi bi-person-heart"></i>
+      </div>
+      <div class="child-status-indicator active"></div>
+    </div>
+    <div class="child-info">
+      <h2 class="child-name">{{ item.child.child_name }}</h2>
+      <div class="child-details">
+        <span class="detail-item">
+          <i class="bi bi-credit-card-2-front me-1"></i>
+          ID: {{ item.child.unique_id }}
+        </span>
+        <span class="detail-item">
+          <i class="bi bi-calendar-heart me-1"></i>
+          Born: {{ item.child.date_of_birth|date:"M d, Y" }}
+        </span>
+        <span class="detail-item">
+          <i class="bi bi-house-heart me-1"></i>
+          {{ item.child.daycare.name }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Child Content Tabs -->
+  <div class="child-content">
+    <div class="content-tabs">
+      <button
+        class="tab-btn active"
+        data-tab="activities-{{ forloop.counter }}"
+      >
+        <i class="bi bi-activity me-2"></i>Activities
+        <span class="tab-count">{{ item.reports|length }}</span>
+      </button>
+      <button class="tab-btn" data-tab="milestones-{{ forloop.counter }}">
+        <i class="bi bi-trophy-fill me-2"></i>Milestones
+        <span class="tab-count">{{ item.milestones|length }}</span>
+      </button>
+      <button class="tab-btn" data-tab="suggestions-{{ forloop.counter }}">
+        <i class="bi bi-lightbulb-fill me-2"></i>AI Insights
+        <span class="tab-count">{{ item.suggestions|length }}</span>
+      </button>
+    </div>
+
+    <!-- Activities Tab -->
+    <div class="tab-content active" id="activities-{{ forloop.counter }}">
+      <div class="section-header">
+        <h4><i class="bi bi-activity me-2"></i>Recent Activities</h4>
+        <small class="text-muted">Track daily activities and progress</small>
+      </div>
+      <div class="activities-list">
+        {% for report in item.reports %}
+        <div class="activity-item">
+          <div class="activity-date">
+            <div class="date-circle">
+              <span class="day">{{ report.date|date:"d" }}</span>
+              <span class="month">{{ report.date|date:"M" }}</span>
+            </div>
+          </div>
+          <div class="activity-content">
+            <h5 class="activity-title">{{ report.activities_done }}</h5>
+
+            {% if report.image %}
+<div class="image mt-2">
+  <a href="{{ report.image.url }}" target="_blank">
+    <img
+      src="{{ report.image.url }}"
+      alt="Activity Image"
+      class="img-fluid rounded shadow-sm"
+      style="max-width: 200px"
+    />
+  </a>
+</div>
+{% endif %}
+ {% if report.notes %}
+            <p class="activity-notes mt-2">
+              <i class="bi bi-chat-quote me-1"></i>{{ report.notes }}
+            </p>
+            {% endif %}
+          </div>
+
+          <div class="activity-status">
+            <span class="status-badge completed">
+              <i class="bi bi-check-circle-fill me-1"></i>Completed
+            </span>
+          </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="bi bi-calendar-x"></i>
+          </div>
+          <h5>No Activities Yet</h5>
+          <p>
+            Activity reports will appear here once your child starts their
+            daycare journey.
+          </p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Milestones Tab -->
+    <div class="tab-content" id="milestones-{{ forloop.counter }}">
+      <div class="section-header">
+        <h4><i class="bi bi-trophy-fill me-2"></i>Development Milestones</h4>
+        <small class="text-muted"
+          >Track important developmental achievements</small
+        >
+      </div>
+      <div class="milestones-grid">
+        {% for milestone in item.milestones %}
+        <div
+          class="milestone-card {% if milestone.status == 'Achieved' %}achieved{% else %}pending{% endif %}"
+        >
+          <div class="milestone-icon">
+            {% if milestone.milestone.category == 'Physical' %}
+            <i class="bi bi-person-arms-up"></i>
+            {% elif milestone.milestone.category == 'Cognitive' %}
+            <i class="bi bi-brain"></i>
+            {% elif milestone.milestone.category == 'Social' %}
+            <i class="bi bi-people"></i>
+            {% else %}
+            <i class="bi bi-star-fill"></i>
+            {% endif %}
+          </div>
+          <div class="milestone-content">
+            <h6 class="milestone-category">
+              {{ milestone.milestone.category }}
+            </h6>
+            <div class="milestone-status">
+              {% if milestone.status == 'Achieved' %}
+              <span class="status-badge achieved">
+                <i class="bi bi-check-circle-fill me-1"></i>Achieved
+              </span>
+              {% else %}
+              <span class="status-badge pending">
+                <i class="bi bi-clock-fill me-1"></i>{{ milestone.status }}
+              </span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="bi bi-trophy"></i>
+          </div>
+          <h5>No Milestones Tracked</h5>
+          <p>Developmental milestones will be tracked as your child grows.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- AI Suggestions Tab -->
+    <div class="tab-content" id="suggestions-{{ forloop.counter }}">
+      <div class="section-header">
+        <h4><i class="bi bi-lightbulb-fill me-2"></i>AI-Powered Insights</h4>
+        <small class="text-muted"
+          >Personalized recommendations for your child's development</small
+        >
+      </div>
+      <div class="suggestions-list">
+        {% for suggestion in item.suggestions %}
+        <div class="suggestion-item">
+          <div class="suggestion-icon">
+            <i class="bi bi-robot"></i>
+          </div>
+          <div class="suggestion-content">
+            <div class="suggestion-meta">
+              <span class="suggestion-date"
+                >{{ suggestion.created_on|date:"M d, Y" }}</span
+              >
+              <span class="suggestion-type">AI Recommendation</span>
+            </div>
+            <p class="suggestion-text">{{ suggestion.suggestion_text }}</p>
+          </div>
+          <div class="suggestion-actions">
+            <button class="suggestion-btn helpful">
+              <i class="bi bi-hand-thumbs-up"></i>
+            </button>
+            <button class="suggestion-btn dismiss">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="bi bi-lightbulb"></i>
+          </div>
+          <h5>No AI Insights Yet</h5>
+          <p>
+            Our AI will provide personalized suggestions based on your child's
+            activities and progress.
+          </p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% empty %}
+<div class="no-children-state">
+  <div class="empty-illustration">
+    <div class="illustration-circle">
+      <i class="bi bi-people"></i>
+    </div>
+  </div>
+  <h3>No Children Enrolled Yet</h3>
+  <p class="mb-4">
+    Start your journey by adding your first child to the monitoring system.
+  </p>
+  <div class="empty-actions">
+    <button class="btn btn-primary btn-lg me-3">
+      <i class="bi bi-plus-circle-fill me-2"></i>Add Your First Child
+    </button>
+    <button class="btn btn-outline-primary btn-lg">
+      <i class="bi bi-house-heart me-2"></i>Find Daycare Centers
+    </button>
+  </div>
+</div>
+{% endfor %}
+
+<style>
+  body {
+    box-sizing: border-box;
+  }
+
+  /* Page Header */
+  .page-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2d3436;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .child-count-badge {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    font-size: 1rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-left: 1rem;
+  }
+
+  .page-subtitle {
+    color: #636e72;
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  .add-child-btn {
+    border-radius: 20px;
+    padding: 12px 24px;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  }
+
+  /* Child Profile Card */
+  .child-profile-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .child-profile-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Child Header */
+  .child-header {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .child-avatar {
+    position: relative;
+  }
+
+  .avatar-circle {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  }
+
+  .avatar-circle i {
+    font-size: 2rem;
+    color: white;
+  }
+
+  .child-status-indicator {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 3px solid white;
+  }
+
+  .child-status-indicator.active {
+    background: #00b894;
+    animation: pulse-green 2s infinite;
+  }
+
+  @keyframes pulse-green {
+    0% {
+      box-shadow: 0 0 0 0 rgba(0, 184, 148, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(0, 184, 148, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(0, 184, 148, 0);
+    }
+  }
+
+  .child-info {
+    flex: 1;
+  }
+
+  .child-name {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2d3436;
+    margin-bottom: 0.5rem;
+  }
+
+  .child-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .detail-item {
+    background: rgba(255, 255, 255, 0.3);
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #2d3436;
+  }
+
+  .child-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .action-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 15px;
+    padding: 12px 16px;
+    font-weight: 600;
+    color: #2d3436;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  .action-btn:hover {
+    background: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .action-btn i {
+    font-size: 1.2rem;
+  }
+
+  .action-btn span {
+    font-size: 0.8rem;
+  }
+
+  /* Content Tabs */
+  .child-content {
+    padding: 2rem;
+  }
+
+  .content-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #f1f3f4;
+  }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 15px 15px 0 0;
+    font-weight: 600;
+    color: #636e72;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .tab-btn.active {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+  }
+
+  .tab-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    margin-left: 8px;
+  }
+
+  .tab-btn.active .tab-count {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  /* Section Headers */
+  .section-header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .section-header h4 {
+    color: #2d3436;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Activities */
+  .activities-list {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .activity-item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 20px;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .activity-item:hover {
+    background: rgba(102, 126, 234, 0.1);
+    transform: translateX(5px);
+  }
+
+  .activity-date {
+    flex-shrink: 0;
+  }
+
+  .date-circle {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(45deg, #a8edea, #fed6e3);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .day {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2d3436;
+    line-height: 1;
+  }
+
+  .month {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #636e72;
+    line-height: 1;
+  }
+
+  .activity-content {
+    flex: 1;
+  }
+
+  .activity-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2d3436;
+    margin-bottom: 0.5rem;
+  }
+
+  .activity-notes {
+    color: #636e72;
+    font-style: italic;
+    margin: 0;
+  }
+
+  .activity-status {
+    flex-shrink: 0;
+  }
+
+  .status-badge {
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .status-badge.completed {
+    background: rgba(0, 184, 148, 0.1);
+    color: #00b894;
+  }
+
+  .status-badge.achieved {
+    background: rgba(0, 184, 148, 0.1);
+    color: #00b894;
+  }
+
+  .status-badge.pending {
+    background: rgba(255, 193, 7, 0.1);
+    color: #f39c12;
+  }
+
+  /* Milestones */
+  .milestones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .milestone-card {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+
+  .milestone-card.achieved {
+    border-color: #00b894;
+    background: rgba(0, 184, 148, 0.05);
+  }
+
+  .milestone-card.pending {
+    border-color: #f39c12;
+    background: rgba(243, 156, 18, 0.05);
+  }
+
+  .milestone-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .milestone-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(45deg, #a8edea, #fed6e3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+  }
+
+  .milestone-icon i {
+    font-size: 1.5rem;
+    color: #2d3436;
+  }
+
+  .milestone-category {
+    font-weight: 600;
+    color: #2d3436;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Suggestions */
+  .suggestions-list {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .suggestion-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .suggestion-item:hover {
+    background: rgba(255, 255, 255, 0.95);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .suggestion-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .suggestion-icon i {
+    font-size: 1.2rem;
+    color: white;
+  }
+
+  .suggestion-content {
+    flex: 1;
+  }
+
+  .suggestion-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .suggestion-date {
+    color: #636e72;
+    font-size: 0.9rem;
+  }
+
+  .suggestion-type {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .suggestion-text {
+    color: #2d3436;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .suggestion-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .suggestion-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .suggestion-btn:hover {
+    background: rgba(102, 126, 234, 0.2);
+    transform: scale(1.1);
+  }
+
+  .suggestion-btn.dismiss {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+  }
+
+  .suggestion-btn.dismiss:hover {
+    background: rgba(231, 76, 60, 0.2);
+  }
+
+  /* Empty States */
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+  }
+
+  .empty-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(45deg, #a8edea, #fed6e3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+  }
+
+  .empty-icon i {
+    font-size: 2rem;
+    color: #2d3436;
+  }
+
+  .empty-state h5 {
+    color: #2d3436;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-state p {
+    color: #636e72;
+    margin: 0;
+  }
+
+  .no-children-state {
+    text-align: center;
+    padding: 4rem 2rem;
+  }
+
+  .illustration-circle {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(45deg, #a8edea, #fed6e3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .illustration-circle i {
+    font-size: 3rem;
+    color: #2d3436;
+  }
+
+  .no-children-state h3 {
+    color: #2d3436;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .no-children-state p {
+    color: #636e72;
+    font-size: 1.1rem;
+  }
+
+  .empty-actions {
+    margin-top: 2rem;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .page-header {
+      text-align: center;
+    }
+
+    .page-title {
+      font-size: 2rem;
+      justify-content: center;
+    }
+
+    .child-header {
+      flex-direction: column;
+      text-align: center;
+      gap: 1rem;
+    }
+
+    .child-details {
+      justify-content: center;
+    }
+
+    .content-tabs {
+      flex-direction: column;
+    }
+
+    .tab-btn {
+      border-radius: 15px;
+      margin-bottom: 0.5rem;
+    }
+
+    .milestones-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .activity-item {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .suggestion-item {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .empty-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
+    }
+  }
+</style>
+
+<script>
+  // Tab functionality
+  document.addEventListener("DOMContentLoaded", function () {
+    const tabButtons = document.querySelectorAll(".tab-btn");
+
+    tabButtons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const tabId = this.getAttribute("data-tab");
+        const parentCard = this.closest(".child-profile-card");
+
+        // Remove active class from all tabs in this card
+        parentCard
+          .querySelectorAll(".tab-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        parentCard
+          .querySelectorAll(".tab-content")
+          .forEach((content) => content.classList.remove("active"));
+
+        // Add active class to clicked tab and corresponding content
+        this.classList.add("active");
+        document.getElementById(tabId).classList.add("active");
+      });
+    });
+  });
+</script>
+
+{% endblock %}

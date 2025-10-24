@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block title %}Pending Verification{% endblock %}
+{% block content %}
+<div class="text-center mt-5">
+    <h3>Hello {{ daycare.name }}</h3>
+    <p class="text-warning">Your daycare profile is pending admin verification.</p>
+    <p>Please wait until an admin approves your account.</p>
+    <a href="{% url 'logout' %}" class="btn btn-danger mt-3">Logout</a>
+</div>
+{% endblock %}

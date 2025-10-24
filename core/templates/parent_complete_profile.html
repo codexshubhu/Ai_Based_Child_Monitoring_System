@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block title %}Parent Info{% endblock %}
+{% block content %}
+<h3>Complete Parent Profile</h3>
+<form method="post">
+  {% csrf_token %}
+  <input type="text" name="mother" class="form-control mb-2" placeholder="Mother Name" required>
+  <input type="text" name="father" class="form-control mb-2" placeholder="Father Name" required>
+  <input type="text" name="phone" class="form-control mb-2" placeholder="Phone Number" required>
+  <input type="email" name="email" class="form-control mb-2" placeholder="Email address" required>
+  <button class="btn btn-success">Submit</button>
+</form>
+{% endblock %}

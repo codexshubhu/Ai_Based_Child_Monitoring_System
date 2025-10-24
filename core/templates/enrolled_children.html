@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block content %}
+<h3>Enrolled Children</h3>
+
+<!-- Search Bar -->
+<form method="get" class="mb-4 d-flex">
+  <input type="text" name="q" value="{{ query }}" class="form-control me-2" placeholder="Search children...">
+  <button type="submit" class="btn btn-outline-primary">Search</button>
+</form>
+
+<div class="row mt-3">
+  {% for child in children %}
+  <div class="col-md-4 mb-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">{{ child.child_name }}</h5>
+        <p class="card-text">DOB: {{ child.date_of_birth }}</p>
+        <a href="{% url 'view_child' child.id %}" class="btn btn-primary">View</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+    <p>No children enrolled yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

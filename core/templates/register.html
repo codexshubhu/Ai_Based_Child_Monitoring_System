@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<h3>Register</h3>
+<form method="post">
+  {% csrf_token %}
+  <input type="text" name="username" class="form-control mb-2" placeholder="Username" required>
+  <input type="password" name="password" class="form-control mb-2" placeholder="Password" required>
+  <select name="role" class="form-control mb-2">
+    <option value="parent">Parent</option>
+    <option value="daycare">Daycare</option>
+    {% comment %} <option value="admin">Admin</option> {% endcomment %}
+  </select>
+  <button class="btn btn-success">Register</button>
+  {% if error %}<p class="text-danger mt-2">{{ error }}</p>{% endif %}
+</form>
+{% endblock %}
